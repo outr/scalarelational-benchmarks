@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
 
 @State(Scope.Thread)
-@BenchmarkMode(Array(Mode.AverageTime))
-@OutputTimeUnit(TimeUnit.NANOSECONDS)
+@BenchmarkMode(Array(Mode.All))
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
 class Test {
   @Setup(Level.Iteration)
   def setUp() {
@@ -22,12 +22,9 @@ class Test {
 
   @TearDown(Level.Iteration)
   def tearDown() {
-    Slick.delete()
-    ScalaRelational.delete()
-
     // Drop table
-    Slick.tearDown()
     ScalaRelational.tearDown()
+    Slick.tearDown()
   }
 
   @Benchmark

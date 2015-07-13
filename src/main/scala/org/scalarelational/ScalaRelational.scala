@@ -18,7 +18,8 @@ object ScalaRelational {
     import Datastore._
 
     session {
-      // drop(suppliers)  TODO not implemented?
+      // TODO Use DDL DSL
+      session.execute("DROP TABLE `suppliers`")
     }
   }
 
@@ -27,12 +28,14 @@ object ScalaRelational {
     import suppliers._
 
     session {
+      Datastore.delete(suppliers).result
+
       // TODO Improve DSL (see Breeze) or adopt Slick's += notation
       (2 to 500).foldLeft(
-        insert(name(s"Name 0"), street("Street 0"))
-          .and(name(s"Name 1"), street(s"Street 1"))
+        insert(id(Some(0)), name(s"Name 0"), street("Street 0"))
+          .and(id(Some(1)), name(s"Name 1"), street(s"Street 1"))
       ) { case (acc, cur) =>
-        acc.and(name(s"Name $cur"), street(s"Street $cur"))
+        acc.and(id(Some(cur)), name(s"Name $cur"), street(s"Street $cur"))
       }.result
     }
   }
@@ -42,8 +45,10 @@ object ScalaRelational {
     import suppliers._
 
     session {
+      Datastore.delete(suppliers).result
+
       (0 to 500).foreach { cur =>
-        insert(name(s"Name $cur"), street(s"Street $cur")).result
+        insert(id(Some(cur)), name(s"Name $cur"), street(s"Street $cur")).result
       }
     }
   }
@@ -123,9 +128,9 @@ object ScalaRelational {
 case class Supplier(name: String, street: String, id: Option[Int] = None)
 
 object Datastore extends H2Datastore(mode = H2Memory("scalarelational")) {
-  object suppliers extends Table("SUPPLIERS") {
-    val id = column[Option[Int]]("SUP_ID", PrimaryKey, AutoIncrement)
-    val name = column[String]("SUP_NAME")
-    val street = column[String]("STREET")
+  object suppliers extends Table("suppliers") {
+    val id = column[Option[Int]]("id", PrimaryKey, AutoIncrement)
+    val name = column[String]("name")
+    val street = column[String]("street")
   }
 }
