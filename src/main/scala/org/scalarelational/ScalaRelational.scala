@@ -97,7 +97,7 @@ object ScalaRelational {
     session {
       (0 to 500).map { i =>
         val query = suppliers.q from suppliers where id === Some(i)
-        query.to[Supplier]
+        query.to[Supplier].result.one()
       }.size
     }
   }
