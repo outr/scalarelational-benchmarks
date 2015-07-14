@@ -16,8 +16,8 @@ class Test {
 
     // Some benchmarks (query, update, delete) require a non-empty table, do it
     // outside of the benchmark as it may skew the results otherwise
-    Slick.insertBatch()
-    ScalaRelational.insertBatch()
+    Slick.batchInsert()
+    ScalaRelational.batchInsert()
   }
 
   @TearDown(Level.Iteration)
@@ -28,7 +28,7 @@ class Test {
   }
 
   @Benchmark
-  def slickInsertBatch() { Slick.insertBatch() }
+  def slickInsertBatch() { Slick.batchInsert() }
 
   @Benchmark
   def slickInsertSeparate() { Slick.insertSeparate() }
@@ -43,7 +43,7 @@ class Test {
   def slickDelete() { Slick.delete() }
 
   @Benchmark
-  def srInsertBatch() { ScalaRelational.insertBatch() }
+  def srInsertBatch() { ScalaRelational.batchInsert() }
 
   @Benchmark
   def srInsertSeparate() { ScalaRelational.insertSeparate() }

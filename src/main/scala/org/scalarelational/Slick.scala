@@ -25,7 +25,7 @@ object Slick {
     Await.result(db.run(suppliers.schema.drop), Duration.Inf)
   }
 
-  def insertBatch() {
+  def batchInsert() {
     val deleteQuery = suppliers.delete
 
     val insertQueries = (0 to 500).map { id =>
