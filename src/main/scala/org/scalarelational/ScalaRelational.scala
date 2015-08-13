@@ -1,9 +1,8 @@
 package org.scalarelational
 
-import org.scalarelational.mapper._
-import org.scalarelational.table.Table
 import org.scalarelational.column.property.{AutoIncrement, PrimaryKey}
 import org.scalarelational.h2.{H2Datastore, H2Memory}
+import org.scalarelational.mapper._
 
 object ScalaRelational {
   import Datastore._
@@ -14,7 +13,7 @@ object ScalaRelational {
   }
 
   def tearDown() = session {
-    dropTable(suppliers).result
+    dropTable(suppliers, cascade = true).result
   }
 
   def batchInsert() = session {
@@ -35,12 +34,6 @@ object ScalaRelational {
   }
 
   def insertMapper() = session {
-    (0 to 500).foreach { cur =>
-      suppliers.insert(Supplier(s"Name $cur", s"Street $cur")).result
-    }
-  }
-
-  def insertMapperMacros() = session {
     (0 to 500).foreach { cur =>
       Supplier(s"Name $cur", s"Street $cur").insert.result
     }
@@ -83,13 +76,13 @@ object ScalaRelational {
   }
 }
 
-case class Supplier(name: String, street: String, id: Option[Int] = None) extends Entity {
+case class Supplier(name: String, street: String, id: Option[Int] = None) extends Entity[Supplier] {
   def columns = mapTo[Supplier](Datastore.suppliers)
 }
 
 object Datastore extends H2Datastore(mode = H2Memory("scalarelational")) {
-  object suppliers extends Table("suppliers") {
-    val id = column[Option[Int]]("id", PrimaryKey, AutoIncrement)
+  object suppliers extends MappedTable[Supplier]("suppliers") {
+    val id = column[Option[Int], Int]("id", PrimaryKey, AutoIncrement)
     val name = column[String]("name")
     val street = column[String]("street")
   }

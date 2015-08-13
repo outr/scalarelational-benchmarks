@@ -52,9 +52,6 @@ class Test {
   def srInsertMapper() { ScalaRelational.insertMapper() }
 
   @Benchmark
-  def srInsertMapperMacros() { ScalaRelational.insertMapperMacros() }
-
-  @Benchmark
   def srQueryConvert() { ScalaRelational.queryConvert() }
 
   @Benchmark
