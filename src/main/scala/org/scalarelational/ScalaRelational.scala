@@ -2,6 +2,7 @@ package org.scalarelational
 
 import org.scalarelational.column.property.{AutoIncrement, PrimaryKey}
 import org.scalarelational.h2.{H2Datastore, H2Memory}
+import org.scalarelational.instruction.Query
 import org.scalarelational.mapper._
 
 object ScalaRelational {
@@ -85,5 +86,7 @@ object Datastore extends H2Datastore(mode = H2Memory("scalarelational")) {
     val id = column[Option[Int], Int]("id", PrimaryKey, AutoIncrement)
     val name = column[String]("name")
     val street = column[String]("street")
+
+    override def query = q.to[Supplier]
   }
 }
