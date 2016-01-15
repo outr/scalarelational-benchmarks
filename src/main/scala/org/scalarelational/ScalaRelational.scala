@@ -2,22 +2,21 @@ package org.scalarelational
 
 import org.scalarelational.column.property.{AutoIncrement, PrimaryKey}
 import org.scalarelational.h2.{H2Datastore, H2Memory}
-import org.scalarelational.instruction.Query
 import org.scalarelational.mapper._
 
 object ScalaRelational {
   import Datastore._
   import suppliers._
 
-  def setUp() = session {
+  def setUp() = withSession { implicit session =>
     create(suppliers)
   }
 
-  def tearDown() = session {
+  def tearDown() = withSession { implicit session =>
     dropTable(suppliers, cascade = true).result
   }
 
-  def batchInsert() = session {
+  def batchInsert() = withSession { implicit session =>
     Datastore.delete(suppliers).result
 
     val batch = (0 to 500).map { i =>
@@ -26,7 +25,7 @@ object ScalaRelational {
     insertBatch(batch).result
   }
 
-  def insertSeparate() = session {
+  def insertSeparate() = withSession { implicit session =>
     Datastore.delete(suppliers).result
 
     (0 to 500).foreach { cur =>
@@ -34,43 +33,43 @@ object ScalaRelational {
     }
   }
 
-  def insertMapper() = session {
+  def insertMapper() = withSession { implicit session =>
     (0 to 500).foreach { cur =>
       Supplier(s"Name $cur", s"Street $cur").insert.result
     }
   }
 
-  def queryConvert(): Int = session {
+  def queryConvert(): Int = withSession { implicit session =>
     (0 to 500).map { i =>
-      val query = suppliers.q from suppliers where id === Some(i)
+      val query = suppliers.q where id === Some(i)
       query.convert[Supplier] { qr =>
         Supplier(qr(name), qr(street), qr(id))
-      }.result.one()
+      }.result.one
     }.size
   }
 
-  def queryMap(): Int = session {
+  def queryMap(): Int = withSession { implicit session =>
     (0 to 500).map { i =>
-      // val query = suppliers.q from suppliers where id === Some(i)  TODO should work too
+      // val query = suppliers.q where id === Some(i)  TODO should work too
       val query = select(name, street, id) from suppliers where id === Some(i)
-      query.map(Supplier.tupled).result.one()
+      query.map(Supplier.tupled).result.one
     }.size
   }
 
-  def queryTo(): Int = session {
+  def queryTo(): Int = withSession { implicit session =>
     (0 to 500).map { i =>
-      val query = suppliers.q from suppliers where id === Some(i)
-      query.to[Supplier].result.one()
+      val query = suppliers.q where id === Some(i)
+      query.to[Supplier].result.one
     }.size
   }
 
-  def update(): Int = session {
+  def update(): Int = withSession { implicit session =>
     (0 to 500).map { i =>
       (Datastore.update(name(s"Updated $i")) where id === Some(i)).result
     }.size
   }
 
-  def delete(): Int = session {
+  def delete(): Int = withSession { implicit session =>
     (0 to 500).map { i =>
       (Datastore.delete(suppliers) where id === Some(i)).result
     }.size
